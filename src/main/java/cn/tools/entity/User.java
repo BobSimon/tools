@@ -1,7 +1,6 @@
 package cn.tools.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class User implements Serializable {
 
@@ -9,28 +8,26 @@ public class User implements Serializable {
 
     private String name;// 姓名
     private String dateString;// 日期字符串
-    private String tag;// 休息 or 正常班
-    private String remark;// 休息日 or 工作日
+    private String type;// 休息 or 正常班
+    private String option;// 休息日 or 工作日
     private String status = "正常";
     private String startTime;// 打卡开始时间，示例：09:00
     private String endTime;// 打卡结束时间，示例：18:00
-
-    private Date date;// 当天日期
-    private Date startDate;// 当天上班打卡时间
-    private Date endDate;// 当天下班打卡时间
+    private String remark;// 备注
 
     public User() {
         super();
     }
 
-    public User(String name, String dateString, String tag, String remark, String startTime, String endTime) {
+    public User(String name, String dateString, String type, String option, String startTime, String endTime, String remark) {
         super();
         this.name = name;
         this.dateString = dateString;
-        this.tag = tag;
-        this.remark = remark;
+        this.type = type;
+        this.option = option;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.remark = remark;
     }
 
     public String getName() {
@@ -49,20 +46,20 @@ public class User implements Serializable {
         this.dateString = dateString;
     }
 
-    public String getTag() {
-        return tag;
+    public String getType() {
+        return type;
     }
 
-    public void setTag(String tag) {
-        this.tag = tag;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public String getRemark() {
-        return remark;
+    public String getOption() {
+        return option;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setOption(String option) {
+        this.option = option;
     }
 
     public String getStatus() {
@@ -89,33 +86,17 @@ public class User implements Serializable {
         this.endTime = endTime;
     }
 
-    public Date getDate() {
-        return date;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     @Override
     public String toString() {
-        return "User [name=" + name + ", dateString=" + dateString + ", tag=" + tag + ", remark=" + remark + ", status=" + status + ", startTime=" + startTime + ", endTime=" + endTime + "]";
+        return "User [name=" + name + ", dateString=" + dateString + ", type=" + type + ", option=" + option + ", status=" + status + ", startTime=" + startTime + ", endTime=" + endTime + ", startTime=" + startTime + ", remark=" + remark + "]";
     }
 
 }

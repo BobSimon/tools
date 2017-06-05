@@ -148,15 +148,15 @@ public class ExcelServiceImpl implements ExcelService {
             List<User> users = new ArrayList<User>();
             for (String n : names) {
                 String name = n;
-                TreeMap<String, List<Date>> treeMap = map.get(n);
+                TreeMap<String, List<Date>> treeMap = map.get(n);//当前用户所有考勤
 
-                for (Map.Entry<String, String> entry : dateMap.entrySet()) {
+                for (Map.Entry<String, String> entry : dateMap.entrySet()) {//迭代当月每一天
                     String key = entry.getKey();
 
-                    String remark = dateMap.get(key), tag = "正常班", startTime = "", endTime = "";
+                    String option = dateMap.get(key), type = "正常班", startTime = null, endTime = null, remark = null;
                     Date date, startDate, endDate;
 
-                    if (treeMap.containsKey(key)) {
+                    if (treeMap.containsKey(key)) {//当天有没有考勤数据
                         List<Date> dateList = treeMap.get(key);
                         if (dateList.size() > 1) {
                             Collections.sort(dateList);// 升序
@@ -168,8 +168,10 @@ public class ExcelServiceImpl implements ExcelService {
                                 c.setTime(startDate);
                                 if (c.get(Calendar.AM_PM) == 0) {// 判断是不是上午
                                     startTime = DateUtil.dateToString(startDate, DateUtil.fm_HHmm);// 上班打卡时间
+                                    remark = "下班未打卡？";
                                 } else {
                                     endTime = DateUtil.dateToString(startDate, DateUtil.fm_HHmm);// 下班打卡时间
+                                    remark = "上班未打卡？";
                                 }
                             } else {
                                 startTime = DateUtil.dateToString(startDate, DateUtil.fm_HHmm);// 上班打卡时间
@@ -181,16 +183,21 @@ public class ExcelServiceImpl implements ExcelService {
                             c.setTime(date);
                             if (c.get(Calendar.AM_PM) == 0) {// 判断是不是上午
                                 startTime = DateUtil.dateToString(date, DateUtil.fm_HHmm);// 上班打卡时间
+                                remark = "下班未打卡？";
                             } else {
                                 endTime = DateUtil.dateToString(date, DateUtil.fm_HHmm);// 下班打卡时间
+                                remark = "上班未打卡？";
                             }
                         }
+                    }else{
+                        if (!StringUtils.equals(option, "休息日"))
+                            remark = "事假？未打卡？";
                     }
 
-                    if (StringUtils.equals(remark, "休息日"))
-                        tag = "休息";
+                    if (StringUtils.equals(option, "休息日"))
+                        type = "休息";
 
-                    users.add(new User(name, key, tag, remark, startTime, endTime));
+                    users.add(new User(name, key, type, option, startTime, endTime, remark));
 
                 }
             }
@@ -203,12 +210,13 @@ public class ExcelServiceImpl implements ExcelService {
                 // [name=朱文彬, dateString=2017/05/26, tag=正常班, remark=工作日, status=正常, startTime=09:09, endTime=18:03]
                 row.createCell(0).setCellValue(u.getName()); // 创建一个单元格 第1列,名称
                 row.createCell(1).setCellValue(u.getDateString()); // 创建一个单元格 第2列，日期字符串
-                row.createCell(2).setCellValue(u.getTag()); // 创建一个单元格 第3列，休息 or 正常班
-                row.createCell(3).setCellValue(u.getRemark()); // 创建一个单元格 第4列， 休息日 or 工作日
+                row.createCell(2).setCellValue(u.getType()); // 创建一个单元格 第3列，休息 or 正常班
+                row.createCell(3).setCellValue(u.getOption()); // 创建一个单元格 第4列， 休息日 or 工作日
                 row.createCell(4).setCellValue(u.getStatus()); // 创建一个单元格 第5列， 正常
                 row.createCell(5).setCellValue(u.getStartTime()); // 创建一个单元格 第6列， 正常
                 row.createCell(6).setCellValue(u.getEndTime()); // 创建一个单元格 第7列， 正常
-                row.createCell(7).setCellValue(u.getRemark()); // 创建一个单元格 第8列， 休息日 or 工作日
+                row.createCell(7).setCellValue(u.getOption()); // 创建一个单元格 第8列， 休息日 or 工作日
+                row.createCell(11).setCellValue(u.getRemark()); // 创建一个单元格 第12列，备注
             }
 
             // 将wb对象转成byte流
@@ -216,9 +224,7 @@ public class ExcelServiceImpl implements ExcelService {
             wb.write(os);
             wb.close();
             return os.toByteArray();
-        } catch (
-
-        BusinessException e) {
+        } catch (BusinessException e) {
             log.error("## import excel fail , error message={}", e.getLocalizedMessage());
             throw e;
         } catch (Exception e) {
