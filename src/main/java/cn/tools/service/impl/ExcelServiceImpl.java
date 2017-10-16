@@ -32,7 +32,7 @@ public class ExcelServiceImpl implements ExcelService {
 
     private static final Logger log = LoggerFactory.getLogger(ExcelServiceImpl.class);
 
-    private static List<String> list = Arrays.asList("yyyy/mm;@", "m/d/yy", "yy/m/d", "mm/dd/yy", "dd-mmm-yy", "yyyy/m/d", "m/d/yy h:mm", "yyyy/mm/dd hh:mm", "yyyy/m/d hh:mm");
+    private static List<String> list = Arrays.asList("yyyy/mm;@", "m/d/yy", "yy/m/d", "mm/dd/yy", "dd-mmm-yy", "yyyy/m/d", "m/d/yy h:mm", "yyyy/mm/dd hh:mm", "yyyy/m/d hh:mm", "yyyy\\-mm\\-dd\\ h:mm");
 
     // 从excel的单元格当中解析出字符串
     public static String getStringCellValue(Row row, int index) {
@@ -108,6 +108,7 @@ public class ExcelServiceImpl implements ExcelService {
             final int nameIndex = 0, timeIndex = 1;
             Workbook wb = new HSSFWorkbook(new ByteArrayInputStream(file));// v.2007 office,即支持.xls格式
             Sheet sheet = wb.getSheetAt(0);// 获取当前sheet
+            log.debug("# [{}] 解析中......", sheet.getSheetName());
             // Workbook wb = new XSSFWorkbook(stream);// v.2007+ office
             int rows = sheet.getPhysicalNumberOfRows();// 获取总行号
             if (rows > 0) {
@@ -140,7 +141,7 @@ public class ExcelServiceImpl implements ExcelService {
                     list.add(time);
                     treeMap.put(dateString, list);
                     map.put(name, treeMap);
-                    log.info("# import , rowIndex={}, name={} , time={} ", (row.getRowNum() + 1), name, DateUtil.dateToString(time, DateUtil.fm_yyyy_MM_dd_HHmmssSSS));
+                    log.info("# {}\t{}\t{} ", (row.getRowNum() + 1), name, DateUtil.dateToString(time, DateUtil.fm_yyyy_MM_dd_HHmm));
                 }
             }
 
@@ -148,15 +149,15 @@ public class ExcelServiceImpl implements ExcelService {
             List<User> users = new ArrayList<User>();
             for (String n : names) {
                 String name = n;
-                TreeMap<String, List<Date>> treeMap = map.get(n);//当前用户所有考勤
+                TreeMap<String, List<Date>> treeMap = map.get(n);// 当前用户所有考勤
 
-                for (Map.Entry<String, String> entry : dateMap.entrySet()) {//迭代当月每一天
+                for (Map.Entry<String, String> entry : dateMap.entrySet()) {// 迭代当月每一天
                     String key = entry.getKey();
 
                     String option = dateMap.get(key), type = "正常班", startTime = null, endTime = null, remark = null;
                     Date date, startDate, endDate;
 
-                    if (treeMap.containsKey(key)) {//当天有没有考勤数据
+                    if (treeMap.containsKey(key)) {// 当天有没有考勤数据
                         List<Date> dateList = treeMap.get(key);
                         if (dateList.size() > 1) {
                             Collections.sort(dateList);// 升序
@@ -189,7 +190,7 @@ public class ExcelServiceImpl implements ExcelService {
                                 remark = "上班未打卡？";
                             }
                         }
-                    }else{
+                    } else {
                         if (!StringUtils.equals(option, "休息日"))
                             remark = "事假？未打卡？";
                     }
